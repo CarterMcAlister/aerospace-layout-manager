@@ -135,13 +135,13 @@ const configFilePath = await $`echo ${args.values.configFile}`.text();
 const layoutConfig: LayoutConfig = await Bun.file(configFilePath.trim()).json();
 
 if (args.values.listLayouts) {
-	debugLog(Object.keys(layoutConfig.layouts).join("\n"));
+	console.log(Object.keys(layoutConfig.layouts).join("\n"));
 	process.exit(0);
 }
 
 function printHelp() {
-	debugLog(
-		`\nAerospace Layout Manager\n\nUsage:\n  aerospace-layout-manager [options] <layout-name>\n\nOptions:\n  -l, --layout <layout-name>   Specify the layout name (can also be provided as the first positional argument)\n  -c, --configFile <path>      Path to the layout configuration file (default: ~/.config/aerospace/layouts.json)\n  -L, --listLayouts            List available layout names from the configuration file\n  -d, --listDisplays           List available display names\n  --debug                      Show detailed debug logging\n  -h, --help                   Show this help message and exit\n\nExamples:\n  # Apply the 'work' layout defined in the config\n  aerospace-layout-manager work\n\n  # Apply with debug logging\n  aerospace-layout-manager --debug work\n\n  # Same as above using the explicit flag\n  aerospace-layout-manager --layout work\n\n  # List all available layouts\n  aerospace-layout-manager --listLayouts\n\n  # List all available displays\n  aerospace-layout-manager --listDisplays\n`,
+	console.log(
+		`\n    Aerospace Layout Manager\n\n    Usage:\n        aerospace-layout-manager [options] <layout-name>\n\n    Options:\n        -l, --layout <layout-name>   Specify the layout name (can also be provided as the first positional argument)\n        -c, --configFile <path>      Path to the layout configuration file (default: ~/.config/aerospace/layouts.json)\n        -L, --listLayouts            List available layout names from the configuration file\n        -d, --listDisplays           List available display names\n        -h, --help                   Show this help message and exit\n\n        --debug                      Show all command logs in process, for troubleshooting errors and hangs\n\n    Examples:\n        # Apply the 'work' layout defined in the config\n        aerospace-layout-manager work\n\n        # Apply with debug logging\n        aerospace-layout-manager --debug work\n\n        # Same as above using the explicit flag\n        aerospace-layout-manager --layout work\n\n        # List all available layouts\n        aerospace-layout-manager --listLayouts\n\n        # List all available displays\n        aerospace-layout-manager --listDisplays\n        `,
 	);
 }
 
@@ -153,7 +153,7 @@ if (args.values.help || layoutName === "help") {
 
 if (args.values.listDisplays) {
 	const displays = await getDisplays();
-	debugLog(displays.map((d) => d.name).join("\n"));
+	console.log(displays.map((d) => d.name).join("\n"));
 	process.exit(0);
 }
 
