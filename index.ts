@@ -207,7 +207,7 @@ async function switchToWorkspace(workspace: string) {
 
 async function moveWindow(windowId: string, workspace: string) {
 	await execAerospaceCommand(
-		["move-node-to-workspace", "--window-id", windowId, workspace, "--focus-follows-window"],
+		["move-node-to-workspace", "--window-id", windowId, workspace],
 		1000,
 	);
 }
@@ -603,7 +603,9 @@ async function traverseTreeMove(tree: LayoutItem[], depth = 0) {
 			debugLog(`[INFO] traverseTreeMove: Entering nested group with ${item.windows.length} windows`);
 			await traverseTreeMove(item.windows, depth + 1);
 		}
-		await delay(50); // Increased delay between window operations
+		await delay(10);
+        await switchToWorkspace(originalWorkspace);
+        await switchToWorkspace(layout.workspace);
 	}
 	debugLog(`[INFO] traverseTreeMove: Completed depth ${depth}`);
 }
@@ -702,8 +704,10 @@ async function traverseTreeResize(
 				await resizeWindow(windowId, item.size, dimension);
 			}
 			await traverseTreeResize(item.windows, depth + 1, item);
+            await switchToWorkspace(originalWorkspace);
+            await switchToWorkspace(layout.workspace);
 		}
-		await delay(50); // Increased delay between resize operations
+		await delay(50);
 	}
 	debugLog(`[INFO] traverseTreeResize: Completed depth ${depth}`);
 }
@@ -713,24 +717,44 @@ debugLog('[INFO] ========================================');
 debugLog('[INFO] Starting layout application');
 debugLog('[INFO] ========================================');
 
-debugLog('[INFO] Step 1/5: Clearing workspace');
+// Detect and store the original workspace
+debugLog('[INFO] Step 1/8: Detecting current workspace');
+const originalWorkspace = (await $`aerospace list-workspaces --focused`.text()).trim();
+debugLog(`[INFO] Original workspace: ${originalWorkspace}`);
+
+debugLog('[INFO] Step 2/8: Clearing workspace');
 await clearWorkspace(layout.workspace);
-await delay(100); // Longer delay after clearing workspace
 
-debugLog('[INFO] Step 2/5: Moving windows to workspace');
-await traverseTreeMove(layout.windows);
-await delay(200); // Longer delay after moving windows
+debugLog(`[INFO] Step 3/8: Switching to workspace ${layout.workspace}`);
+await switchToWorkspace(originalWorkspace); // Restore original workspace
+await switchToWorkspace(layout.workspace);  // Then switch back to target workspace. This helps with multimonitor setups.
+await delay(50);
 
-debugLog('[INFO] Step 3/5: Repositioning windows');
-await traverseTreeReposition(layout.windows);
-await delay(200); // Longer delay after repositioning
-
-debugLog(`[INFO] Step 4/5: Switching to workspace ${layout.workspace}`);
+debugLog('[INFO] Step 4/8: Moving windows to workspace');
+await switchToWorkspace(originalWorkspace);
 await switchToWorkspace(layout.workspace);
-await delay(100); // Longer delay after switching workspace
+await traverseTreeMove(layout.windows);
+await delay(50);
 
-debugLog('[INFO] Step 5/5: Resizing windows');
+debugLog('[INFO] Step 5/8: Repositioning windows');
+await switchToWorkspace(originalWorkspace);
+await switchToWorkspace(layout.workspace);
+await traverseTreeReposition(layout.windows);
+await delay(50);
+
+debugLog(`[INFO] Step 6/8: Refocusing workspace ${layout.workspace}`);
+await switchToWorkspace(originalWorkspace);
+await switchToWorkspace(layout.workspace);
+await delay(50);
+
+debugLog('[INFO] Step 7/8: Resizing windows');
+await switchToWorkspace(originalWorkspace);
+await switchToWorkspace(layout.workspace);
 await traverseTreeResize(layout.windows);
+
+debugLog(`[INFO] Step 8/8: Refocusing workspace ${layout.workspace}`);
+await switchToWorkspace(originalWorkspace);
+await switchToWorkspace(layout.workspace);
 
 debugLog('[INFO] ========================================');
 debugLog('[INFO] Layout application complete!');
