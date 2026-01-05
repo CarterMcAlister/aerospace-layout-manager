@@ -373,9 +373,8 @@ async function getWindowId(bundleId: string) {
 }
 
 async function launchIfNotRunning(bundleId: string) {
-	const isRunning =
-		(await $`osascript -e "application id \"${bundleId}\" is running" | grep -q true`.text()) ===
-		"true";
+	const result = await $`osascript -e "application id \"${bundleId}\" is running"`.text();
+	const isRunning = result.trim() === "true";
 	if (!isRunning) {
 		await $`open -b "${bundleId}"`;
 	}
