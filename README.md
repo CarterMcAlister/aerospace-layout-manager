@@ -21,7 +21,20 @@ You describe a layout once (in JSON), then run the script whenever you need that
 
 ## 🚀 Installation
 
-You can install `aerospace-layout-manager` with a single command:
+Install with Homebrew:
+
+```bash
+brew tap CarterMcAlister/tools
+brew install aerospace-layout-manager
+```
+
+Or install directly without tapping first:
+
+```bash
+brew install CarterMcAlister/tools/aerospace-layout-manager
+```
+
+You can also install `aerospace-layout-manager` with the install script:
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/CarterMcAlister/aerospace-layout-manager/main/install.sh | bash
